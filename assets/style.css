@@ -5,4 +5,8 @@
     color: #C0C0C0;
     
 }
+.ag-cell {
+    display: flex;
+    align-items: center;
+  }
 

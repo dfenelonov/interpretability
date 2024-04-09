@@ -1,28 +1,47 @@
-import pandas as pd 
-from catboost import CatBoostClassifier
-from sklearn.model_selection import train_test_split
+import dash_ag_grid as dag
+from dash import Dash, html, dcc, Input, Output, State
+import plotly.express as px
+import pandas as pd
+import dash_bootstrap_components as dbc
 
-class Processor:
-    def __init__(self, model):
-        self.model=model
+app = Dash(__name__)
 
-    def train_test_splitter(self, df, target, test_size=0.2, random_state=42):
-        y = df[target]
-        X = df.drop([target], axis = 1)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
-        return X_train, X_test, y_train, y_test
+df = pd.read_excel('df_thres.xlsx')
 
-    def train(self, df, target='target', train_test_spit=True):
-        cols = df.columns
-        num_cols = df._get_numeric_data().columns
-        cat_cols = list(set(cols) - set(num_cols))
-        y_train = df[target]
-        X_train = df.drop([target], axis = 1)
-        self.model.fit(X_train, y_train, cat_cols)
+app.layout = html.Div(
+    [dbc.Button('Submit', size='sm', id='btn'),
+        dcc.Markdown("Example of using `rowData` in a callback with an editable grid"),
+        dag.AgGrid(
+            id="editing-grid2",
+            columnDefs=[{ 'field': 'Feature', 'editable': False},
+                        { 'field': 'Threshold', 'editable': False},
+                        { 'field': 'new_Threshold', 'editable': True}],
+            rowData=df.to_dict("records"),
+            columnSize="sizeToFit",
+        ),
+        html.Div(id="editing-grid-output2"),
+    ],
+    style={"margin": 20},
+)
 
-    def evaluate(self, df, target='target'):
-        if target in df.columns():
-            df = df.drop([target], axis=1)
-        preds = self.model.predict(df)
-        df[target] = preds
-        return df
+
+@app.callback(
+    Output("editing-grid2", "rowData"),
+    Input("btn", "n_clicks"),
+    State("editing-grid2", "cellValueChanged"),
+    State("editing-grid2", "rowData"))
+
+def update(n_clicks, cel_Value, rows):
+    dff = pd.DataFrame(rows)
+    dff['new_Threshold'] = pd.to_numeric(dff['new_Threshold'])
+    row = pd.to_numeric(cel_Value["rowId"])
+    newValue = pd.to_numeric(cel_Value["newValue"])
+    dff['new_Threshold'].loc[row] = newValue*10
+    
+    if n_clicks:
+        return dff.to_dict("records")
+    else: 
+        return no_update
+
+if __name__ == "__main__":
+    app.run_server(debug=False, port=8081)
