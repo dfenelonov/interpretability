@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "interpretability"
+version = "0.1.0"
+description = ""
+authors = ["M1croZavr <tlashukov@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+dash = "^2.16.1"
+pandas = "^2.2.1"
+dash-bootstrap-components = "^1.5.0"
+shap = "^0.45.0"
+notebook = "^7.1.2"
+catboost = "^1.2.3"
+seaborn = "^0.13.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

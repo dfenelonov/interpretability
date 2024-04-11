@@ -12,7 +12,7 @@ from catboost import CatBoostRegressor
 
 model = CatBoostRegressor() 
 
-df = pd.read_csv('data.csv')
+df = pd.read_csv('data/data.csv')
 
 model.load_model('model_name')
 
