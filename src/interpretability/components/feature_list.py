@@ -85,9 +85,11 @@ class FeatureListAIO(html.Div):
                         dbc.Button(
                             "Update",
                             id=cls.ids.update_button(aio_id)
-                        )
+                        ),
+                        align="end"
                     )
-                ]
+                ],
+                class_name="p-2"
             ),
             html.Div(
                 [
@@ -107,11 +109,12 @@ class FeatureListAIO(html.Div):
                     ),
                     dbc.Row(
                         [
-                            dbc.Col("Features"),
-                            dbc.Col("Values"),
-                            dbc.Col("Impact"),
-                            dbc.Col("Percentile", width=3)
-                        ]
+                            dbc.Col("Features", style={"font-weight": "bold", "font-size": "large"}),
+                            dbc.Col("Values", style={"font-weight": "bold", "font-size": "large"}),
+                            dbc.Col("Impact", style={"font-weight": "bold", "font-size": "large"}),
+                            dbc.Col("Percentile", style={"font-weight": "bold", "font-size": "large"})
+                        ],
+                        class_name="p-2"
                     ),
                     html.Div(
                         id=cls.ids.features_info(aio_id)
@@ -135,13 +138,19 @@ class FeatureListAIO(html.Div):
         prevent_initial_call=True
     )
     def update_features_info(features, identifier):
-        if identifier is None:
+        if features is None or identifier is None:
             return dash.no_update
         df_row = df.iloc[identifier].loc[features]
         total_rows = []
         for feature, feature_value in df_row.items():
-            histogram_fig = go.Figure(data=go.Histogram(x=df[feature]))
+            histogram_fig = go.Figure(go.Histogram(x=df[feature]))
             histogram_fig.update_xaxes(showticklabels=False)
+            histogram_fig.update_layout(
+                # autosize=True,
+                width=200,
+                height=200,
+                margin=dict(l=10, r=10, t=10, b=10)
+            )
             shap_value = explainer.get_shap_values(identifier)[feature].values
             total_rows.append(
                 dbc.Row(
@@ -151,9 +160,9 @@ class FeatureListAIO(html.Div):
                         dbc.Col(f"{shap_value:+.5f}", class_name="red" if shap_value < 0 else "green"),
                         dbc.Col(
                             dcc.Graph(
-                                figure=go.Figure(data=histogram_fig)
-                            ),
-                            width=3
+                                figure=go.Figure(data=histogram_fig),
+                                config={"displayModeBar": False}
+                            )
                         )
                     ]
                 )
